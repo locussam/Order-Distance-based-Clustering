@@ -67,6 +67,8 @@ void print_cluster_vec(vector<vector<int>>& cluster_vec)
 //	//}
 //	return 0;
 //}
+
+
 int main()
 {
 
@@ -76,7 +78,7 @@ int main()
 	cout << "finish data in" << endl;
 	int k = 20;//这里的k只是最开始计算全部N的数据时为了减轻运算量用的k,
 	//当类合并到 k以下时,会在cal_knn_m中改变k,使k=类数
-	const int K = 9;
+	const int K = 20;
 
 
 	Mat samples_knn_m;//样本间的knn矩阵
@@ -99,7 +101,7 @@ int main()
 	cout << "start merge" << endl;
 
 	int temp_itor = 0;
-	while (pre_it_size != cluster_vec.size()  || temp_itor < 10)
+	while (pre_it_size != cluster_vec.size())
 	{
 		pre_it_size = cluster_vec.size();
 		cluster_dists_m = cal_cluster_dists_matrix(samples_dists_m, cluster_vec);

@@ -32,9 +32,9 @@ cv::Mat cal_knn_dists_average(const cv::Mat&dists_knn_m,const int K);
 /*利用原始数据计算样本点间距离矩阵储存以便使用(d(a,b) 为L1距离)*/
 cv::Mat cal_samples_dists_m(const cv::Mat data);
 /*计算两样本sample1,sample2间的L1距离*/
-float distance_L1(const int sample1, const int sample2, const cv::Mat&data);
+float distance(const int sample1, const int sample2, const cv::Mat&data);
 /*计算两类间的距离 min(d(a,b))*/
-float distance_L1(const int cluster1, const int cluster2, const std::vector<std::vector<int>>& cluster_vec, const cv::Mat samples_dists_m);
+float distance(const int cluster1, const int cluster2, const std::vector<std::vector<int>>& cluster_vec, const cv::Mat samples_dists_m);
 
 /*根据输入的数据量N生成初始的分类向量组,即每个样本一行且仅包含它自己
 N:数据量*/

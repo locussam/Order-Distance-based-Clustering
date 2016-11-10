@@ -66,23 +66,24 @@ cv::Mat cal_samples_dists_m(const cv::Mat data)
 	{
 		for (int j=0;j<i;++j)//利用对称性,同时对角线已初始化为0
 		{
-			samples_dists_m.at<float>(j, i) = samples_dists_m.at<float>(i, j) = distance_L1(i, j, data);
+			samples_dists_m.at<float>(j, i) = samples_dists_m.at<float>(i, j) = distance(i, j, data);
 		}
 	}
 	return samples_dists_m;
 }
 
-float distance_L1(const int sample1, const int sample2, const cv::Mat&data)
+float distance(const int sample1, const int sample2, const cv::Mat&data)
 {
 	float distance = 0;
 	for (int col = 0;col<data.cols;++col)
 	{
-		distance += abs(data.at<float>(sample1, col) - data.at<float>(sample2, col));
+		distance += pow(data.at<float>(sample1, col)-data.at<float>(sample2, col),2);
 	}
+	distance = sqrt(distance);
 	return distance;
 }
 
-float distance_L1(const int cluster1, const int cluster2, const std::vector<std::vector<int>>& cluster_vec, const cv::Mat samples_dists_m)
+float distance(const int cluster1, const int cluster2, const std::vector<std::vector<int>>& cluster_vec, const cv::Mat samples_dists_m)
 {
 	if (cluster_vec[cluster1].empty() || cluster_vec[cluster2].empty())
 	{
@@ -125,7 +126,7 @@ cv::Mat cal_cluster_dists_matrix(const cv::Mat samples_dists_m, const std::vecto
 	{
 		for (int j = 0; j < i; ++j)//利用对称性,同时对角线已初始化为0
 		{
-			cluster_dists_m.at<float>(j, i) = cluster_dists_m.at<float>(i, j) = distance_L1(i, j, cluster_vec, samples_dists_m);
+			cluster_dists_m.at<float>(j, i) = cluster_dists_m.at<float>(i, j) = distance(i, j, cluster_vec, samples_dists_m);
 		}
 	}
 	return cluster_dists_m;
