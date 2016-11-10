@@ -29,7 +29,7 @@ std::vector<std::vector<int>> cluster(const cv::Mat & data)
 		cluster_dists_m = cal_cluster_dists_matrix(samples_dists_m, cluster_vec);
 		cluster_knn_m = cal_knn_m(cluster_dists_m);
 		merge_m = cal_merge_matrix(cluster_dists_m, cluster_knn_m, samples_knn_dists_average_m, cluster_vec);
-		renew_clusters(merge_m, cluster_vec);
+		cluster_vec = renew_clusters(merge_m, cluster_vec);
 	}
 	return cluster_vec;
 }
@@ -231,19 +231,74 @@ cv::Mat cal_merge_matrix(const cv::Mat & cluster_dists_m, const cv::Mat & cluste
 		for (int j = 0; j < merge_m.cols; ++j)
 		{
 			if (cal_DR(i,j,cluster_knn_m) < t &&
-				cal_DN(cluster_dists_m, samples_knn_dists_average_m,
-					cluster_vec) < 1)
+				cal_DN(i,j,cluster_dists_m, samples_knn_dists_average_m,
+					cluster_vec) <= 1)
 			{
 				merge_m.at<int>(i, j) = 1;
-				//merge_m.at<int>(j, i) = 1;
 			}
 		}
 	}
-	return cv::Mat();
+	return merge_m;
 }
 
-void renew_clusters(const cv::Mat merge_m, std::vector<std::vector<int>>& cluster_vec)
+std::vector<std::vector<int>> renew_clusters(const cv::Mat merge_m,const std::vector<std::vector<int>>& cluster_vec)
 {
+	vector<vector<int>> new_cluster_shape_vec;
+	vector<int> temp_vec;
+
+	for (int i=0;i<merge_m.rows;++i)
+	{
+		if (is_in_clusters_vec(i, new_cluster_shape_vec) >= 0)
+		{
+			continue;
+		}
+		else
+		{
+			temp_vec.push_back(i);
+			for (int j=0;j<temp_vec.size();++j)
+			{
+				for (int col = 0;col<merge_m.cols;++col)
+				{
+					if (merge_m.at<int>(temp_vec[j],col)==1)
+					{
+						if (find(temp_vec.begin(), temp_vec.end(),col)==temp_vec.end())
+						{
+							temp_vec.push_back(col);
+						}
+					}
+				}
+			}
+		}
+		new_cluster_shape_vec.push_back(temp_vec);
+		temp_vec.clear();
+	}
+	//new_cluster_shape_vec 每行存放了新的类的类号,如第0行为0,1,5即新的第0类为原来的0,1,5三个类
+	vector<vector<int>> new_cluster_vec(new_cluster_shape_vec.size());
+	for (int i = 0; i < new_cluster_shape_vec.size(); ++i)
+	{
+		for (int j = 0; j < new_cluster_shape_vec[i].size(); ++j)
+		{
+			new_cluster_vec[i].insert(new_cluster_vec[i].end(),
+				cluster_vec[new_cluster_shape_vec[i][j]].begin(),
+				cluster_vec[new_cluster_shape_vec[i][j]].end());
+		}
+	}
+	return new_cluster_vec;
+}
+
+int is_in_clusters_vec(const int x, std::vector<std::vector<int>>& cluster_vec)
+{
+	for (int i=0;i<cluster_vec.size();++i)
+	{
+		for (int j = 0;j<cluster_vec[i].size();++j)
+		{
+			if (x == cluster_vec[i][j])
+			{
+				return i;
+			}
+		}
+	}
+	return -1;
 }
 
 float cal_DR(const int a,const int b,const cv::Mat&cluster_knn_m)
@@ -282,11 +337,23 @@ int find_ai_in_b(const int a, const int b, const int i, const Mat&indices)
 	return indices.cols;
 }
 
-float cal_DN(const cv::Mat&cluster_dists_m,
+float cal_DN(const int i,const int j,
+	const cv::Mat&cluster_dists_m,
 	const cv::Mat&samples_knn_dists_average_m,
 	const std::vector<std::vector<int>>& cluster_vec)
 {
-	float DN = 0;
+	float fai = 0;
+	for (int col =0; col<cluster_vec[i].size();++col)
+	{
+		fai += samples_knn_dists_average_m.at<float>(cluster_vec[i][col], 0);
+	}
+	for (int col = 0; col < cluster_vec[j].size(); ++col)
+	{
+		fai += samples_knn_dists_average_m.at<float>(cluster_vec[j][col], 0);
+	}
+	fai = fai / (cluster_vec[i].size() + cluster_vec[j].size());
+
+	float DN = cluster_dists_m.at<float>(i, j) / fai;
 	return DN;
 }
 

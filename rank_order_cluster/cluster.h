@@ -67,8 +67,10 @@ cv::Mat cal_merge_matrix(const cv::Mat&cluster_dists_m,
 /*利用merge_m也就是类间关联矩阵,BFS合并所有关联类
 merge_m: 类间关联矩阵
 return& cluster_vec:新的类向量组*/
-void renew_clusters(const cv::Mat merge_m, 
-	std::vector<std::vector<int>>& cluster_vec);
+std::vector<std::vector<int>> renew_clusters(const cv::Mat merge_m,
+	const std::vector<std::vector<int>>& cluster_vec);
+/*判断x在不在cluster_vec中,并返回行号,-1为没有找到*/
+int is_in_clusters_vec(const int x, std::vector<std::vector<int>>& cluster_vec);
 
 /*计算DR  (eq.2)  根据k近邻 计算 a,b 之间的 rank-order距离
 cluster_knn_m: 类间k近邻矩阵 在DR计算时使用
@@ -85,6 +87,7 @@ samples_knn_dists_average_m: 图像的k近邻距离平均,在就是DN的Φ的最后一个求和项
 cluster_vec: 本次的类向量组,在计算DN的 Φ(Ci,Cj)时使用
 return DN
 */
-float cal_DN(const cv::Mat&cluster_dists_m, 
+float cal_DN(const int i, const int j,
+	const cv::Mat&cluster_dists_m,
 	const cv::Mat&samples_knn_dists_average_m,
 	const std::vector<std::vector<int>>& cluster_vec);
