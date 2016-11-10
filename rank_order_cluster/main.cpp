@@ -108,13 +108,32 @@ int main()
 	cluster_vec = renew_clusters(merge_m, cluster_vec);
 	print_cluster_vec(cluster_vec);
 
-	while (pre_it_size != cluster_vec.size() && cluster_vec.size() != 1)
+	while (pre_it_size != cluster_vec.size())
 	{
 		pre_it_size = cluster_vec.size();
 		cluster_dists_m = cal_cluster_dists_matrix(samples_dists_m, cluster_vec);
-		cluster_knn_m = cal_knn_m(cluster_dists_m,k);
+		cluster_knn_m = cal_knn_m(cluster_dists_m, k);
 		merge_m = cal_merge_matrix(cluster_dists_m, cluster_knn_m, samples_knn_dists_average_m, cluster_vec);
 		cluster_vec = renew_clusters(merge_m, cluster_vec);
 		print_cluster_vec(cluster_vec);
 	}
+
+	////这个为可以控制最后并几个类出来的版本
+	//while (pre_it_size != cluster_vec.size())
+	//{
+	//	pre_it_size = cluster_vec.size();
+	//	cluster_dists_m = cal_cluster_dists_matrix(samples_dists_m, cluster_vec);
+	//	cluster_knn_m = cal_knn_m(cluster_dists_m, k);
+	//	merge_m = cal_merge_matrix(cluster_dists_m, cluster_knn_m, samples_knn_dists_average_m, cluster_vec);
+	//	auto temp_vec = renew_clusters(merge_m, cluster_vec);
+	//	if (temp_vec.size() < 2)
+	//	{
+	//		break;
+	//	}
+	//	else
+	//	{
+	//		cluster_vec = temp_vec;
+	//	}
+	//	print_cluster_vec(cluster_vec);
+	//}
 }
