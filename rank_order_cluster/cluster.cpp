@@ -2,8 +2,14 @@
 using namespace cv;
 using namespace std;
 
-void generate_data(cv::Mat & data)
-{
+void generate_data(Mat& data) {
+	RNG rng((unsigned int)time(NULL));
+	data.create(samples, DIM, CV_32FC1);
+
+	Point center;
+	center.x = rng.uniform(0, data.cols);
+	center.y = rng.uniform(0, data.rows);
+	rng.fill(data, RNG::NORMAL, Scalar(center.x, center.y), Scalar(data.cols*0.05, data.rows*0.05));
 }
 
 std::vector<std::vector<int>> cluster(const cv::Mat & data)

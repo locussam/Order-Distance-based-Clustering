@@ -67,15 +67,17 @@ void print_cluster_vec(vector<vector<int>>& cluster_vec)
 //}
 int main()
 {
-	Mat data(7, 2, CV_32F);
-	data.at<float>(0, 0) = 0; data.at<float>(0, 1) = 0;
-	data.at<float>(1, 0) = 0; data.at<float>(1, 1) = 1;
-	data.at<float>(2, 0) = 1; data.at<float>(2, 1) = 1;
-	data.at<float>(3, 0) = 10; data.at<float>(3, 1) = 2;
-	data.at<float>(4, 0) = 10; data.at<float>(4, 1) = 1;
-	data.at<float>(5, 0) = 10; data.at<float>(5, 1) = -1;
-	data.at<float>(6, 0) = 1; data.at<float>(6, 1) = 0;
-
+	//Mat data(7, 2, CV_32F);
+	//data.at<float>(0, 0) = 0; data.at<float>(0, 1) = 0;
+	//data.at<float>(1, 0) = 0; data.at<float>(1, 1) = 1;
+	//data.at<float>(2, 0) = 1; data.at<float>(2, 1) = 1;
+	//data.at<float>(3, 0) = 10; data.at<float>(3, 1) = 2;
+	//data.at<float>(4, 0) = 10; data.at<float>(4, 1) = 1;
+	//data.at<float>(5, 0) = 10; data.at<float>(5, 1) = -1;
+	//data.at<float>(6, 0) = 1; data.at<float>(6, 1) = 0;
+	Mat data;
+	generate_data(data);
+	cout << data << endl;
 	Mat samples_knn_m;//样本间的knn矩阵
 	Mat samples_dists_knn_m;//样本的knn矩阵对应的距离
 	Mat samples_dists_m = cal_samples_dists_m(data);//计算各个点间的L1距离,以便后续使用
@@ -93,12 +95,23 @@ int main()
 	Mat merge_m = cal_merge_matrix(cluster_dists_m, cluster_knn_m, samples_knn_dists_average_m, cluster_vec);
 	cluster_vec = renew_clusters(merge_m, cluster_vec);
 	print_cluster_vec(cluster_vec);
-	while (cluster_vec.size()>=k)
+
+	vector<vector<int>> new_cluster_vec;
+	for (int i=0;i<2000 && cluster_vec.size() >= k;++i)
 	{
 		cluster_dists_m = cal_cluster_dists_matrix(samples_dists_m, cluster_vec);
 		cluster_knn_m = cal_knn_m(cluster_dists_m);
 		merge_m = cal_merge_matrix(cluster_dists_m, cluster_knn_m, samples_knn_dists_average_m, cluster_vec);
-		cluster_vec = renew_clusters(merge_m, cluster_vec);
+		new_cluster_vec = renew_clusters(merge_m, cluster_vec);
+		if (new_cluster_vec.size() == cluster_vec.size())
+		{
+			cout << "Done" << endl;
+			break;
+		}
+		else
+		{
+			cluster_vec = new_cluster_vec;
+		}
 	}
 	print_cluster_vec(cluster_vec);
 }
