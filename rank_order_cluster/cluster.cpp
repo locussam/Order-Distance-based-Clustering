@@ -118,7 +118,7 @@ cv::Mat cal_cluster_dists_matrix(const cv::Mat samples_dists_m, const std::vecto
 
 	for (int i = 0; i < cluster_num; ++i)
 	{
-		for (int j = 0; j < 0; ++j)//利用对称性,同时对角线已初始化为0
+		for (int j = 0; j < i; ++j)//利用对称性,同时对角线已初始化为0
 		{
 			cluster_dists_m.at<float>(j, i) = cluster_dists_m.at<float>(i, j) = distance_L1(i, j, cluster_vec, samples_dists_m);
 		}
@@ -128,68 +128,100 @@ cv::Mat cal_cluster_dists_matrix(const cv::Mat samples_dists_m, const std::vecto
 
 cv::Mat cal_knn_m(const cv::Mat & dists_m)
 {
+	Mat knn_m(dists_m.rows, k, CV_32S);
+	struct Node
+	{
+		int index;
+		float distance;
+		Node& operator =(Node& value)
+		{
+			distance = value.distance;
+			index = value.index;
+			return *this;
+		}
 
-	return cv::Mat();
+		bool operator ==(Node& value)
+		{
+			return (distance == value.distance);
+		}
+		bool operator >(Node& value)
+		{
+			return (distance > value.distance);
+		}
+		bool operator <(Node& value)
+		{
+			return(distance < value.distance);
+		}
+	};
+	Node temp_node;
+	vector<Node> temp_vec;
+	for (int i = 0; i < dists_m.rows; ++i)
+	{
+		for (int j = 0; j < dists_m.cols; ++j)
+		{
+			temp_node.index = j;
+			temp_node.distance = dists_m.at<float>(i, j);
+			temp_vec.push_back(temp_node);
+		}
+		sort(temp_vec.begin(), temp_vec.end());
+		for (int j = 0; j < k; ++j)
+		{
+			knn_m.at<int>(i, j) = temp_vec[j].index;
+		}
+		temp_vec.clear();
+	}
+	return knn_m;
 }
 
 cv::Mat cal_knn_m(const cv::Mat& dists_m, cv::Mat & knn_dists_m)
 {
 	Mat knn_m(dists_m.rows, k, CV_32S);
 	knn_dists_m = Mat::zeros(dists_m.rows, k, CV_32F);
-	//先将前5个放入knn_m 与 knn_dists_m中
+	struct Node
+	{
+		int index;
+		float distance;
+		Node& operator =(Node& value)
+		{
+			distance = value.distance;
+			index = value.index;
+			return *this;
+		}
+
+		bool operator ==(Node& value)
+		{
+			return (distance == value.distance);
+		}
+		bool operator >(Node& value)
+		{
+			return (distance > value.distance);
+		}
+		bool operator <(Node& value)
+		{
+			return(distance < value.distance);
+		}
+	};
+	Node temp_node;
+	vector<Node> temp_vec;
 	for (int i=0;i<dists_m.rows;++i)
 	{
+		for (int j=0;j <dists_m.cols;++j)
+		{
+			temp_node.index = j;
+			temp_node.distance = dists_m.at<float>(i, j);
+			temp_vec.push_back(temp_node);
+		}
+		sort(temp_vec.begin(), temp_vec.end());
 		for (int j = 0;j<k;++j)
 		{
-			knn_m.at<int>(i, j) = j;
-			knn_dists_m.at<float>(i, j) = dists_m.at<float>(i, j);
+			knn_m.at<int>(i, j) = temp_vec[j].index;
+			knn_dists_m.at<float>(i, j) = temp_vec[j].distance;
 		}
-	}
-	//依此遍历每一行的剩余列,维护一个knn_m该行最大数的位置与它的值,新加入的数直接与它交换,然后维护这两个值
-	float temp_max;
-	int temp_max_index;
-	for (int i=0;i<dists_m.rows;++i)
-	{
-		max(i, dists_m,temp_max,temp_max_index);
-		for (int j = k;j<knn_dists_m.cols;++j)
-		{
-			if (knn_dists_m.at<float>(i,j) < temp_max)
-			{
-				knn_m.at<i, temp_max_index> = j;
-				knn_dists_m.at<i, temp_max_index> = knn_dists_m.at<float>(i, j);
-			}
-		}
+		temp_vec.clear();
 	}
 	return knn_m;
 }
 
-void max(const int i, const cv::Mat & src, float & temp_max, int & temp_max_index)
-{
-	temp_max = src.at<float>(i, 0);
-	temp_max_index = 0;
-	for (int j=0;j<src.cols;++j)
-	{
-		if (src.at<float>(i,j) > temp_max)
-		{
-			temp_max = src.at<float>(i, j);
-			temp_max_index = j;
-		}
-	}
-}
-
-void min(const int i, const cv::Mat & src, float & temp_min, int & temp_min_index)
-{
-	temp_min = src.at<float>(i, 0);
-	temp_min_index = 0;
-	for (int j = 0; j<src.cols; ++j)
-	{
-		if (src.at<float>(i, j) < temp_min)
-		{
-			temp_min = src.at<float>(i, j);
-			temp_min_index = j;
-		}
-	}
-}
 
 cv::Mat cal_merge_matrix(const cv::Mat & cluster_dists_m, const cv::Mat & cluster_knn_m, const cv::Mat & samples_knn_dists_average_m, const std::vector<std::vector<int>>& cluster_vec)
 {

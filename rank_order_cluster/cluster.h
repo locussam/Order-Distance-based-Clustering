@@ -2,6 +2,7 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include "global.h"
+
 /*产生数据,
 data:每行为一个数据,列数为其特征维数*/
 void generate_data(cv::Mat& data);
@@ -50,11 +51,6 @@ return knn_m: k近邻矩阵
 可选参数return& knn_dists_m: 用于返回的knn距离矩阵*/
 cv::Mat cal_knn_m(const cv::Mat& dists_m);
 cv::Mat cal_knn_m(const cv::Mat& dists_m, cv::Mat& knn_dists_m);
-/*计算Mat第i行最大数,并按引用返回其值与标号*/
-void max(const int i, const cv::Mat& src, float& temp_max, int& temp_max_index);
-/*计算Mat第i行最小,并按引用返回其值与标号*/
-void min(const int i, const cv::Mat& src, float& temp_min, int& temp_min_index);
-
 
 /*分别计算 DN与DR 并由此建立 类间关联矩阵,用于合并类
 即:i,j两类满足合并要求则 merge_m(i,j)=1 
