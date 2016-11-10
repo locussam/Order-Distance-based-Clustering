@@ -70,12 +70,15 @@ return& cluster_vec:新的类向量组*/
 void renew_clusters(const cv::Mat merge_m, 
 	std::vector<std::vector<int>>& cluster_vec);
 
-/*计算DR
+/*计算DR  (eq.2)  根据k近邻 计算 a,b 之间的 rank-order距离
 cluster_knn_m: 类间k近邻矩阵 在DR计算时使用
 return DR
 */
-float cal_DR(const cv::Mat&cluster_knn_m);
+float cal_DR(const int a, const int b, const cv::Mat&cluster_knn_m);
 
+/*返回 a中第i个邻近在b中的序号,没有则返回indices.cols(k)的值
+*/
+int find_ai_in_b(const int a, const int b, const int i, const cv::Mat&indices);
 /*计算DN
 cluster_dists_m: 类间距离矩阵 在DN的d(Ci,Cj)使用
 samples_knn_dists_average_m: 图像的k近邻距离平均,在就是DN的Φ的最后一个求和项

@@ -42,7 +42,8 @@ int main()
 
 	cluster_dists_m = cal_cluster_dists_matrix(samples_dists_m, cluster_vec);
 	cluster_knn_m = cal_knn_m(cluster_dists_m);
-	cout << cluster_knn_m << endl;
+	
+	cout << cal_DR(0, 6, cluster_knn_m) << endl;
 	//Mat merge_m = cal_merge_matrix(cluster_dists_m, cluster_knn_m, samples_knn_dists_average_m, cluster_vec);
 	//renew_clusters(merge_m, cluster_vec);
 

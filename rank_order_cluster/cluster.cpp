@@ -230,7 +230,7 @@ cv::Mat cal_merge_matrix(const cv::Mat & cluster_dists_m, const cv::Mat & cluste
 	{
 		for (int j = 0; j < merge_m.cols; ++j)
 		{
-			if (cal_DR(cluster_knn_m) < t &&
+			if (cal_DR(i,j,cluster_knn_m) < t &&
 				cal_DN(cluster_dists_m, samples_knn_dists_average_m,
 					cluster_vec) < 1)
 			{
@@ -246,10 +246,40 @@ void renew_clusters(const cv::Mat merge_m, std::vector<std::vector<int>>& cluste
 {
 }
 
-float cal_DR(const cv::Mat&cluster_knn_m)
+float cal_DR(const int a,const int b,const cv::Mat&cluster_knn_m)
 {
-	float DR = 0;
-	return DR;
+	if (a == b)
+	{
+		return 0.0;
+	}
+	int Oab = find_ai_in_b(b, a, 0, cluster_knn_m);
+	int Dab = 0;
+	for (int i = 0; i < min(Oab, cluster_knn_m.cols); ++i)
+	{
+		Dab += find_ai_in_b(a, b, i, cluster_knn_m);
+	}
+
+	int Oba = find_ai_in_b(a, b, 0, cluster_knn_m);
+
+	int Dba = 0;
+	for (int i = 0; i < min(Oba, cluster_knn_m.cols); ++i)
+	{
+		Dba += find_ai_in_b(b, a, i, cluster_knn_m);
+	}
+	return (float)(Dab + Dba) / min(Oba, Oab);
+}
+
+int find_ai_in_b(const int a, const int b, const int i, const Mat&indices)
+{
+	int t_pic = indices.at<int>(a, i);
+	for (int num = 0; num < indices.cols; ++num)
+	{
+		if (t_pic == indices.at<int>(b, num))
+		{
+			return num;
+		}
+	}
+	return indices.cols;
 }
 
 float cal_DN(const cv::Mat&cluster_dists_m,
