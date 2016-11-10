@@ -144,11 +144,13 @@
   <ItemGroup>
     <ClCompile Include="cluster.cpp" />
     <ClCompile Include="global.cpp" />
+    <ClCompile Include="init_data.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cluster.h" />
     <ClInclude Include="global.h" />
+    <ClInclude Include="init_data.h" />
     <ClInclude Include="main.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -397,3 +397,16 @@ cv::Mat cal_DN_m(const cv::Mat & cluster_dists_m, const cv::Mat & samples_knn_di
 	return DN_m;
 }
 
+std::vector<std::vector<std::string>> get_cluster_file_name_v(const std::vector<std::string>& file_name_v, const std::vector<std::vector<int>> cluster_vec)
+{
+	std::vector<std::vector<std::string>> cluster_file_name_v(cluster_vec.size());
+	for (int i=0;i<cluster_vec.size();++i)
+	{
+		for (int j=0;j<cluster_vec[i].size();++j)
+		{
+			cluster_file_name_v[i].push_back(file_name_v[cluster_vec[i][j]]);
+		}
+	}
+	return cluster_file_name_v;
+}
+

@@ -2,6 +2,8 @@
 #include <iostream>
 #include <time.h>
 #include <opencv2/opencv.hpp>
+#include <vector>
+#include <string>
 #include "global.h"
 
 /*产生数据,
@@ -98,3 +100,8 @@ float cal_DN(const int i, const int j,
 cv::Mat cal_DN_m(const cv::Mat&cluster_dists_m,
 	const cv::Mat&samples_knn_dists_average_m,
 	const std::vector<std::vector<int>>& cluster_vec);
+
+/*根据file_name_v与聚类后的cluster_vec得到cluster_file_name_v*/
+std::vector<std::vector<std::string>> get_cluster_file_name_v(
+	const std::vector<std::string>&file_name_v,
+	const std::vector<std::vector<int>>cluster_vec);

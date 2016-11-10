@@ -2,5 +2,8 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include <vector>
+#include <fstream>
+#include <string>
 #include "cluster.h"
 #include "global.h"
+#include "init_data.h"

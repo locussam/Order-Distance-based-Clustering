@@ -1,2 +1,2 @@
 #include "global.h"
-const float t = 2.00001;
+const float t = 14;
