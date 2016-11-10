@@ -6,7 +6,7 @@
 
 /*产生数据,
 data:每行为一个数据,列数为其特征维数*/
-void generate_data(cv::Mat& data);
+void generate_data(cv::Mat& data,const int samples,const int DIM);
 
 /*聚类
 data:输入数据矩阵
@@ -25,7 +25,7 @@ void flann_search(const cv::Mat& data, const cv::Mat& point,
 /*利用k近邻距离矩阵,求每一行的平均
 dists_knn_m: 样本间的k近邻距离
 return samples_knn_dists_average_m:样本间k近邻距离的平均*/
-cv::Mat cal_knn_dists_average(const cv::Mat&dists_knn_m);
+cv::Mat cal_knn_dists_average(const cv::Mat&dists_knn_m,const int K);
 
 /*利用原始数据计算样本点间距离矩阵储存以便使用(d(a,b) 为L1距离)*/
 cv::Mat cal_samples_dists_m(const cv::Mat data);
@@ -50,8 +50,8 @@ cv::Mat cal_cluster_dists_matrix(const cv::Mat samples_dists_m,
 dists_m: 距离矩阵
 return knn_m: k近邻矩阵
 可选参数return& knn_dists_m: 用于返回的knn距离矩阵*/
-cv::Mat cal_knn_m(const cv::Mat& dists_m);
-cv::Mat cal_knn_m(const cv::Mat& dists_m, cv::Mat& knn_dists_m);
+cv::Mat cal_knn_m(const cv::Mat& dists_m,int&k);
+cv::Mat cal_knn_m(const cv::Mat& dists_m, cv::Mat& knn_dists_m,int&k);
 
 /*分别计算 DN与DR 并由此建立 类间关联矩阵,用于合并类
 即:i,j两类满足合并要求则 merge_m(i,j)=1 
@@ -78,7 +78,8 @@ cluster_knn_m: 类间k近邻矩阵 在DR计算时使用
 return DR
 */
 float cal_DR(const int a, const int b, const cv::Mat&cluster_knn_m);
-
+/*计算DR矩阵*/
+cv::Mat cal_DR_m(const cv::Mat&cluster_knn_m);
 /*返回 a中第i个邻近在b中的序号,没有则返回indices.cols(k)的值
 */
 int find_ai_in_b(const int a, const int b, const int i, const cv::Mat&indices);
@@ -90,5 +91,10 @@ return DN
 */
 float cal_DN(const int i, const int j,
 	const cv::Mat&cluster_dists_m,
+	const cv::Mat&samples_knn_dists_average_m,
+	const std::vector<std::vector<int>>& cluster_vec);
+
+/*计算DN矩阵*/
+cv::Mat cal_DN_m(const cv::Mat&cluster_dists_m,
 	const cv::Mat&samples_knn_dists_average_m,
 	const std::vector<std::vector<int>>& cluster_vec);
