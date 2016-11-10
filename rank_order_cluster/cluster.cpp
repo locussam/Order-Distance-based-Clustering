@@ -231,16 +231,16 @@ cv::Mat cal_knn_m(const cv::Mat& dists_m, cv::Mat & knn_dists_m)
 
 cv::Mat cal_merge_matrix(const cv::Mat & cluster_dists_m, const cv::Mat & cluster_knn_m, const cv::Mat & samples_knn_dists_average_m, const std::vector<std::vector<int>>& cluster_vec)
 {
-	Mat merge_m = Mat::zeros(cluster_vec.size(), cluster_vec.size(), CV_32SC1);
+	Mat merge_m = Mat::eye(cluster_vec.size(), cluster_vec.size(), CV_32SC1);
 	for (int i = 0; i < merge_m.rows; ++i)
 	{
-		for (int j = 0; j < merge_m.cols; ++j)
+		for (int j = 0; j < i; ++j)
 		{
 			if (cal_DR(i,j,cluster_knn_m) < t &&
 				cal_DN(i,j,cluster_dists_m, samples_knn_dists_average_m,
 					cluster_vec) <= 1)
 			{
-				merge_m.at<int>(i, j) = 1;
+				merge_m.at<int>(j, i)=merge_m.at<int>(i, j) = 1;
 			}
 		}
 	}
