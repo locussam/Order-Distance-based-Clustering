@@ -12,33 +12,40 @@ void generate_data(cv::Mat& data, const int samples, const int DIM) {
 	rng.fill(data, RNG::NORMAL, Scalar(center.x, center.y), Scalar(data.cols*0.05, data.rows*0.05));
 }
 
-//std::vector<std::vector<int>> cluster(const cv::Mat & data)
-//{
-//	//Mat samples_knn_m;//样本间的knn矩阵
-//	//Mat samples_dists_knn_m;//样本的knn矩阵对应的距离
-//	//Mat samples_dists_m = cal_samples_dists_m(data);//计算各个点间的L1距离,以便后续使用
-//	//flann_search(data, data, samples_knn_m, samples_dists_knn_m, k);//这里由于已经计算了样本点两两间的距离可以也用cal_knn_m得到另外两矩阵
-//
-//	vector<vector<int>>cluster_vec = init_cluster_vector(data.rows);//初始化类向量组
-//	//Mat samples_knn_dists_average_m = cal_knn_dists_average(samples_dists_knn_m);//为每个样本的k个近邻的距离的平均值向量
-//
-//	////以下四行可以放入循环体中,在这里是为了加速  直接拷贝
-//	//Mat cluster_dists_m;//初始时每个样本独自为一类,类间距就是样本间距
-//	//samples_dists_knn_m.copyTo(cluster_dists_m);
-//	//Mat cluster_knn_m;
-//	//samples_knn_m.copyTo(cluster_knn_m);
-//	//Mat merge_m = cal_merge_matrix(cluster_dists_m, cluster_knn_m, samples_knn_dists_average_m, cluster_vec);
-//	//renew_clusters(merge_m, cluster_vec);
-//
-//	//for (int i = 0; i < 50; ++i)
-//	//{
-//	//	cluster_dists_m = cal_cluster_dists_matrix(samples_dists_m, cluster_vec);
-//	//	cluster_knn_m = cal_knn_m(cluster_dists_m);
-//	//	merge_m = cal_merge_matrix(cluster_dists_m, cluster_knn_m, samples_knn_dists_average_m, cluster_vec);
-//	//	cluster_vec = renew_clusters(merge_m, cluster_vec);
-//	//}
-//	return cluster_vec;
-//}
+
+void cluster(const cv::Mat & data, const std::vector<std::string>& feature_name_v,int k, const int K, std::vector<std::vector<int>>& cluster_vec, std::vector<std::vector<std::string>>& cluster_name_v)
+{
+	Mat samples_knn_m;//样本间的knn矩阵
+	Mat samples_dists_knn_m;//样本的knn矩阵对应的距离
+	Mat samples_dists_m = cal_samples_dists_m(data);//计算各个点间的L1距离,以便后续使用
+	cout << "finish cal samples_data" << endl;
+	samples_knn_m = cal_knn_m(samples_dists_m, samples_dists_knn_m, k);//这里由于已经计算了样本点两两间的距离可以也用cal_knn_m得到另外两矩阵
+	cluster_vec = init_cluster_vector(data.rows);//初始化类向量组
+	int pre_it_size = cluster_vec.size();
+
+	Mat samples_knn_dists_average_m = cal_knn_dists_average(samples_dists_knn_m, K);//为每个样本的k个近邻的距离的平均值向量
+																					//以下四行可以放入循环体中,在这里是为了加速  直接拷贝
+	Mat cluster_dists_m;//初始时每个样本独自为一类,类间距就是样本间距
+	samples_dists_m.copyTo(cluster_dists_m);
+	Mat cluster_knn_m;
+	samples_knn_m.copyTo(cluster_knn_m);
+
+	Mat merge_m = cal_merge_matrix(cluster_dists_m, cluster_knn_m, samples_knn_dists_average_m, cluster_vec);
+	cluster_vec = renew_clusters(merge_m, cluster_vec);
+	cout << "start merge" << endl;
+
+	int temp_itor = 0;
+	while (pre_it_size != cluster_vec.size())
+	{
+		pre_it_size = cluster_vec.size();
+		cluster_dists_m = cal_cluster_dists_matrix(samples_dists_m, cluster_vec);
+		cluster_knn_m = cal_knn_m(cluster_dists_m, k);
+		merge_m = cal_merge_matrix(cluster_dists_m, cluster_knn_m, samples_knn_dists_average_m, cluster_vec);
+		cluster_vec = renew_clusters(merge_m, cluster_vec);
+		cout << temp_itor++ << endl;
+	}
+	cluster_name_v = get_cluster_file_name_v(feature_name_v, cluster_vec);
+}
 
 void flann_search(const cv::Mat & data, const cv::Mat & point, cv::Mat & indices, cv::Mat & dists, const int k)
 {
@@ -59,7 +66,7 @@ cv::Mat cal_knn_dists_average(const cv::Mat& dists_knn_m,const int K)
 	return samples_knn_dists_average_m;
 }
 
-cv::Mat cal_samples_dists_m(const cv::Mat data)
+cv::Mat cal_samples_dists_m(const cv::Mat& data)
 {
 	Mat samples_dists_m = Mat::zeros(data.rows, data.rows, CV_32F);
 	for (int i=0;i<data.rows;++i)
@@ -401,9 +408,9 @@ cv::Mat cal_DN_m(const cv::Mat & cluster_dists_m, const cv::Mat & samples_knn_di
 std::vector<std::vector<std::string>> get_cluster_file_name_v(const std::vector<std::string>& file_name_v, const std::vector<std::vector<int>> cluster_vec)
 {
 	std::vector<std::vector<std::string>> cluster_file_name_v(cluster_vec.size());
-	for (int i=0;i<cluster_vec.size();++i)
+	for (size_t i=0;i<cluster_vec.size();++i)
 	{
-		for (int j=0;j<cluster_vec[i].size();++j)
+		for (size_t j=0;j<cluster_vec[i].size();++j)
 		{
 			cluster_file_name_v[i].push_back(file_name_v[cluster_vec[i][j]]);
 		}

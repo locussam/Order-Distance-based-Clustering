@@ -11,9 +11,19 @@ data:每行为一个数据,列数为其特征维数*/
 void generate_data(cv::Mat& data,const int samples,const int DIM);
 
 /*聚类
+input:
 data:输入数据矩阵
-return clusters:输出分类结果,向量组每行为一个类*/
-std::vector<std::vector<int>> cluster(const cv::Mat&data);
+feature_name_v: 输入数据矩阵,每行向量对应的照片名称
+k: 计算k近邻
+K: 计算样本间K个近邻的平均(K<= k, K越大,聚类越紧凑)
+output:
+cluster_vec: 输出的聚类的类向量组,每行为一类,其中为照片序号
+cluster_name_v: 输出的聚类的向量组,每行为一类,其中为照片名
+*/
+void cluster(const cv::Mat&data,const std::vector<std::string>& feature_name_v,
+	int k,const int K, 
+	std::vector<std::vector<int>>&cluster_vec, 
+	std::vector<std::vector<std::string>>&cluster_name_v);
 
 /*利用FLANN库得到数据的初始k近邻矩阵与距离矩阵
 data: 输入的特征矩阵
@@ -30,7 +40,7 @@ return samples_knn_dists_average_m:样本间k近邻距离的平均*/
 cv::Mat cal_knn_dists_average(const cv::Mat&dists_knn_m,const int K);
 
 /*利用原始数据计算样本点间距离矩阵储存以便使用(d(a,b) 为L1距离)*/
-cv::Mat cal_samples_dists_m(const cv::Mat data);
+cv::Mat cal_samples_dists_m(const cv::Mat& data);
 /*计算两样本sample1,sample2间的L1距离*/
 float distance(const int sample1, const int sample2, const cv::Mat&data);
 /*计算两类间的距离 min(d(a,b))*/
